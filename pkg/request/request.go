@@ -25,6 +25,7 @@ type BaseFindRequest struct {
 	Skip  int `form:"skip"`                                  // 跳过多少条
 }
 
+// 这段代码的作用是从 HTTP 请求中绑定参数到结构体，并设置默认值和进行验证。
 func Assign(c *gin.Context, req interface{}) {
 	if c.Request.Method == "GET" {
 		if err := c.ShouldBindQuery(req); err != nil {
@@ -37,8 +38,17 @@ func Assign(c *gin.Context, req interface{}) {
 			panic(err)
 		}
 	}
+
 	// Set default values for fields with 'default' tag
-	v := reflect.ValueOf(req).Elem()
+	setDefaultValues(reflect.ValueOf(req).Elem())
+
+	if err := Validate.Struct(req); err != nil {
+		log.Fatalf("Validate: %s", err.Error())
+		panic(err)
+	}
+}
+
+func setDefaultValues(v reflect.Value) {
 	t := v.Type()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
@@ -47,11 +57,10 @@ func Assign(c *gin.Context, req interface{}) {
 		if defaultValue != "" && isEmptyValue(field) {
 			setDefaultValue(field, defaultValue)
 		}
-	}
-
-	if err := Validate.Struct(req); err != nil {
-		log.Fatalf("Validate: %s", err.Error())
-		panic(err)
+		// 递归处理嵌套结构体，当查询参数嵌套了BaseFindRequest 结构体时，也会对嵌套的结构体进行默认值设置
+		if field.Kind() == reflect.Struct {
+			setDefaultValues(field)
+		}
 	}
 }
 

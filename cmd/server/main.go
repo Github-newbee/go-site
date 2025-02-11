@@ -31,7 +31,7 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	// 启动环境指定，默认../../config/dev.yml 可以通过 -conf xxx路径名  指定
-	var envConf = flag.String("conf", "../../config/dev.yml", "config path, eg: -conf ./config/dev.yml")
+	var envConf = flag.String("conf", "./config/dev.yml", "config path, eg: -conf ./config/dev.yml")
 	flag.Parse()
 	conf := config.NewConfig(*envConf)
 
@@ -40,7 +40,11 @@ func main() {
 	// Initialize database connection
 	db := repository.NewDB(conf, logger)
 	// Auto migrate models
-	err := db.AutoMigrate(&model.User{})
+	err := db.AutoMigrate(
+		&model.User{},
+		&model.Category{},
+		&model.Website{},
+	)
 	if err != nil {
 		logger.Fatal("Auto migration failed", zap.Error(err))
 	}

@@ -15,7 +15,7 @@ type UserRepository interface {
 	Update(ctx context.Context, user *model.User) error
 	GetByID(ctx context.Context, id string) (*model.User, error)
 	GetByUsername(ctx context.Context, username string) (*model.User, error)
-	GetAll(req v1.GetAllUsersRequest, ctx context.Context) ([]model.User, error)
+	GetUserAll(req v1.GetAllUsersRequest, ctx context.Context) ([]model.User, error)
 }
 
 func NewUserRepository(
@@ -66,7 +66,7 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*m
 	return &user, nil
 }
 
-func (r *userRepository) GetAll(req v1.GetAllUsersRequest, ctx context.Context) (results []model.User, err error) {
+func (r *userRepository) GetUserAll(req v1.GetAllUsersRequest, ctx context.Context) (results []model.User, err error) {
 	// 执行查询
 	qs := r.DB(ctx).Model(&model.User{}).Session(&gorm.Session{}).Scopes(db.FilterByQuery(req))
 	if err := qs.Limit(req.Limit).Offset(req.Skip).Find(&results).Error; err != nil {

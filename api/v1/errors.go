@@ -11,4 +11,5 @@ var (
 	// more biz errors
 	ErrLoginFailed   = newError(1002, "账号或密码错误")
 	ErrParamsInvalid = newError(1003, "参数错误")
+	ErrDataNotFound  = newError(1004, "找不到记录")
 )

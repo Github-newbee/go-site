@@ -22,7 +22,7 @@ func expressionByField(db *gorm.DB, query interface{}) *gorm.DB {
 		tag := field.Tag
 		column := tag.Get("column")
 		operate := tag.Get("operate")
-		fmt.Println("field", field, "value", value, "tag", tag, "column", column, "operate", operate)
+		fmt.Println("------------field", field, "value", value, "tag", tag, "column", column, "operate", operate)
 		// 代码中对 Select、Order 和 Expand 这三个特殊字段进行了处理，但这些不是对指定字段值的过滤，
 		// 而是用于指定查询的字段、排序规则和预加载关联数据。
 		switch field.Name {

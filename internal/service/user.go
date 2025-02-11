@@ -6,7 +6,6 @@ import (
 	v1 "go-my-demo/api/v1"
 	"go-my-demo/internal/model"
 	"go-my-demo/internal/repository"
-	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -75,9 +74,9 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	}
 
 	// 将 user.Id 从 uint64 转换为 string
-	userIdStr := strconv.FormatUint(user.Id, 10)
+	// userIdStr := strconv.FormatUint(user.Id, 10)
 	// token有效期为1天
-	token, err := s.jwt.GenToken(userIdStr, time.Now().Add(time.Hour*24*1))
+	token, err := s.jwt.GenToken(user.Id, time.Now().Add(time.Hour*24*1))
 	if err != nil {
 		return "", err
 	}
@@ -110,7 +109,7 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 }
 
 func (s *userService) GetAllUsers(req v1.GetAllUsersRequest, ctx context.Context) ([]model.User, error) {
-	users, err := s.userRepo.GetAll(req, ctx)
+	users, err := s.userRepo.GetUserAll(req, ctx)
 	if err != nil {
 		return nil, err
 	}

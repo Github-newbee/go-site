@@ -152,40 +152,183 @@ wire
 * 灵活性：提供了多种日志模式，包括同步和异步日志记录
 * 可扩展性：支持自定义日志记录器和日志格式
 
+## 架构说明
 
-### 面向对象编程
+### 分层架构
 
-业务代码中，使用结构体和方法来实现面向对象编程
+在 Go Web 项目中，常见的分层架构包含表现层（Presentation Layer）、服务层（Service Layer）、数据访问层（Repository Layer）和数据存储层（如数据库）。各层的主要职责如下：
+
+* 表现层：负责处理 HTTP 请求和响应，通常是控制器（Controller）或处理函数（Handler）的工作。
+* 服务层：实现具体的业务逻辑，调用数据访问层的方法进行数据操作。
+* 数据访问层：负责与数据存储层交互，如数据库查询、插入、更新和删除操作。
+* 数据存储层：实际存储数据的地方，如 MySQL、Redis 等。
+
+#### 依赖注入连接关系
+
+1. 定义接口
 
 ```
-type UserHandler struct {
-	userService service.UserService
+type CategoryService interface {
+    CreateCategory(ctx context.Context, category *v1.CategoryRequest) (*model.Category, error)
+    GetAllCategory(req v1.GetCategoryRequest, ctx context.Context) ([]model.Category, error)
+    UpdateCategory(ctx context.Context, id string, req *v1.CategoryRequest) error
 }
 ```
 
-* 这种结构设计遵循依赖注入模式
-* 通过结构体字段来存储依赖服务和组件
-* 通过NewUserHandler函数来创建UserHandler实例，并传递必要的依赖
-* 在UserHandler的方法中，可以直接使用依赖服务和组件
-* 这种设计使得UserHandler的实现更加灵活和可测试，同时也符合面向对象编程的原则
+这里定义了`CategoryService`接口，它规定了服务层应该具备的方法，表现层可以依赖这个接口来调用服务层的功能
 
-**方法接收器**
-
-Go 通过在结构体上定义方法来组织代码
+2. 数据访问层
 
 ```
-func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
-	userId := GetUserIdFromCtx(ctx)
+type CategoryRepository interface {
+ CreateCategory(ctx context.Context, category *model.Category) (*model.Category, error)
+ GetCategoryById(ctx context.Context, id string) (*model.Category, error)
+ GetAllCategory(req v1.GetCategoryRequest, ctx context.Context) ([]model.Category, error)
+ UpdateCategory(ctx context.Context, category *model.Category) error
+}
+
+```
+
+数据访问层也定义了一个接口，具体的实现会在数据访问层的具体结构体中完成
+
+3. 服务层实现
+
+```
+type categoryService struct {
+    *Service
+    categoryRepository repository.CategoryRepository
+}
+
+func NewCategoryService(
+    service *Service,
+    categoryRepository repository.CategoryRepository,
+) CategoryService {
+    return &categoryService{
+        Service:            service,
+        categoryRepository: categoryRepository,
+    }
+}
+
+func (s *categoryService) CreateCategory(ctx context.Context, category *v1.CategoryRequest) (*model.Category, error) {
+    // 将请求数据转换为模型数据
+    modelCategory := &model.Category{
+        // 赋值操作
+    }
+    // 调用数据访问层的方法
+    return s.categoryRepository.CreateCategory(ctx, modelCategory)
+}
+
+func (s *categoryService) GetAllCategory(req v1.GetCategoryRequest, ctx context.Context) ([]model.Category, error) {
+    return s.categoryRepository.GetAllCategory(ctx)
+}
+
+func (s *categoryService) UpdateCategory(ctx context.Context, id string, req *v1.CategoryRequest) error {
+    // 将请求数据转换为模型数据
+    modelCategory := &model.Category{
+        // 赋值操作
+    }
+    return s.categoryRepository.UpdateCategory(ctx, id, modelCategory)
 }
 ```
 
-这里的`h`是方法接收器，它允许方法访问和修改结构体的字段
+* `categoryService`结构体包含了一个`Service`指针和一个`categoryRepository`接口类型的字段。这体现了依赖注入的思想，`categoryService` 依赖于 `categoryRepository` 接口，而不是具体的实现。
+* `NewCategoryService` 函数是一个工厂函数，用于创建 `categoryService` 实例。通过参数注入 `categoryRepository`，使得 `categoryService` 可以使用不同的 `CategoryRepository` 实现。
+* 在 `categoryService` 的方法实现中，调用了 `categoryRepository` 的方法来完成具体的数据操作，实现了业务逻辑和数据访问的分离。
 
-*UserHandler 表示这个方法属于 UserHandler 结构体
+4. 表现层调用
 
-**好处** 
+```
+type CategoryHandler struct {
+ *Handler
+ categoryService service.CategoryService
+}
 
-* 模块化：将数据和行为封装在结构体中，使得代码更加模块化
-* 封装：通过结构体和方法，将实现细节隐藏在结构体内部，外部只需关注接口和方法
-* 可维护性：通过结构体和方法，将实现细节隐藏在结构体内部，外部只需关注接口和方法
-* 依赖清晰：通过结构体字段明确声明了组件之间的依赖关系
+func NewCategoryHandler(
+ handler *Handler,
+ categoryService service.CategoryService,
+) *CategoryHandler {
+ return &CategoryHandler{
+  Handler:         handler,
+  categoryService: categoryService,
+ }
+}
+
+func (h *CategoryHandler) GetAllCategory(ctx *gin.Context) {
+ req := v1.GetCategoryRequest{}
+ request.Assign(ctx, &req)
+ res, err := h.categoryService.GetAllCategory(req, ctx)
+ if err != nil {
+  h.logger.WithContext(ctx).Error("categoryService.GetAllCategory", zap.Error(err))
+  v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+  return
+ }
+
+ v1.HandleSuccess(ctx, res)
+}
+
+```
+
+* `CategoryHandler` 结构体依赖于 `service.CategoryService` 接口，通过 `NewCategoryHandler` 函数注入 `categoryService` 实例。
+* 在 `CreateCategory` 处理函数中，调用 `categoryService` 的 `CreateCategory` 方法来处理创建分类的请求。
+
+#### 依赖注入的优势
+
+* **解耦：** 各层之间通过接口进行依赖，降低了代码的耦合度。例如，当需要更换数据存储方式时，只需要实现一个新的 CategoryRepository 接口，并注入到 categoryService 中，而不需要修改 categoryService 的业务逻辑。
+
+* **可测试性：** 可以方便地在单元测试中模拟接口的实现，独立测试各层的功能。例如，在测试 `categoryService` 时，可以使用模拟的 `CategoryRepository` 来避免依赖实际的数据库。
+
+## 代码说明
+
+### 方法的返回值
+
+1. `GetByUsername`方法：
+
+* 返回的是指针，因为是一个单一结构体对象，是值类型，返回指针可以避免拷贝整个结构体，提高性能
+
+2. `GetUserAll`方法：
+
+* 返回`[]model.User`切片，因为这是一个对象列表，返回切片本身已经是引用类型，不需要返回指针
+
+```
+func (r *userRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+ var user model.User
+ if err := r.DB(ctx).Where("username = ?", username).First(&user).Error; err != nil {
+  if errors.Is(err, gorm.ErrRecordNotFound) {
+   return nil, nil
+  }
+  return nil, err
+ }
+ return &user, nil
+}
+
+func (r *userRepository) GetUserAll(req v1.GetAllUsersRequest, ctx context.Context) (results []model.User, err error) {
+ // 执行查询
+ qs := r.DB(ctx).Model(&model.User{}).Session(&gorm.Session{}).Scopes(db.FilterByQuery(req))
+ if err := qs.Limit(req.Limit).Offset(req.Skip).Find(&results).Error; err != nil {
+  return nil, err
+ }
+ return results, nil
+}
+```
+
+### grom中的部分解释
+
+* `r.DB(ctx)`：获取数据库链接
+* `Model(&model.User{})`: 指定查询的模型为`model.User`
+* `Session(&gorm.Session{}): 创建一个新的GORM会话，确保当前查询在一个独立的会话中进行，对于并发操作特别重要，避免不同查询之间的相互干扰
+* `Scopes(db.FilterByQuery(req))`：应用查询范围
+* `Limit(req.Limit)`: 限制查询结果的数量
+* `Offset(req.Skip)`: 设置查询结果的偏移量，用于分页
+* `Find(&results)`: 执行查询并将结果存储在results切片中
+* `Error`: 检查查询是否发生错误，如果有错误，则返回nil和错误对象
+
+```
+func (r *userRepository) GetUserAll(req v1.GetAllUsersRequest, ctx context.Context) (results []model.User, err error) {
+ // 执行查询
+ qs := r.DB(ctx).Model(&model.User{}).Session(&gorm.Session{}).Scopes(db.FilterByQuery(req))
+ if err := qs.Limit(req.Limit).Offset(req.Skip).Find(&results).Error; err != nil {
+  return nil, err
+ }
+ return results, nil
+}
+```

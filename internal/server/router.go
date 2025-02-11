@@ -53,5 +53,9 @@ func (r *Router) registerSystemRoutes(group *gin.RouterGroup) {
 	{
 		// 用户路由
 		system.RegisterUserRoutes(systemGroup, r.handlers)
+		// 分类路由
+		system.RegisterCategoryRoutes(systemGroup, r.handlers)
+		// 网站路由
+		system.RegisterWebsiteRoutes(systemGroup, r.handlers)
 	}
 }
