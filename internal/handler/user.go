@@ -115,9 +115,10 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
 
-	var req v1.UpdateProfileRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrParamsInvalid, nil)
+	req := v1.UpdateProfileRequest{}
+	queryErr := request.Assign(ctx, &req)
+	if queryErr != nil {
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, queryErr.Error())
 		return
 	}
 
@@ -150,12 +151,16 @@ func (h *UserHandler) GetProfileByID(ctx *gin.Context) {
 func (h *UserHandler) GetAllUsers(ctx *gin.Context) {
 
 	req := v1.GetAllUsersRequest{}
-	request.Assign(ctx, &req)
+	queryErr := request.Assign(ctx, &req)
+	if queryErr != nil {
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, queryErr.Error())
+		return
+	}
 
 	users, err := h.userService.GetAllUsers(req, ctx)
 
 	if err != nil {
-		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrInternalServerError, err.Error())
 		return
 	}
 

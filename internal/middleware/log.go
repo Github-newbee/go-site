@@ -9,10 +9,11 @@ import (
 	"github.com/duke-git/lancet/v2/cryptor"
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-func RequestLogMiddleware(logger *log.Logger) gin.HandlerFunc {
+func RequestLogMiddleware(logger *log.Logger, conf *viper.Viper) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// The configuration is initialized once per request
 		uuid, err := random.UUIdV4()
@@ -22,25 +23,33 @@ func RequestLogMiddleware(logger *log.Logger) gin.HandlerFunc {
 		trace := cryptor.Md5String(uuid)
 		logger.WithValue(ctx, zap.String("trace", trace))
 		logger.WithValue(ctx, zap.String("request_method", ctx.Request.Method))
-		logger.WithValue(ctx, zap.Any("request_headers", ctx.Request.Header))
 		logger.WithValue(ctx, zap.String("request_url", ctx.Request.URL.String()))
-		if ctx.Request.Body != nil {
-			bodyBytes, _ := ctx.GetRawData()
-			ctx.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes)) // 关键点
-			logger.WithValue(ctx, zap.String("request_params", string(bodyBytes)))
+		if conf.GetString("env") != "prod" {
+			logger.WithValue(ctx, zap.Any("request_headers", ctx.Request.Header))
+			if ctx.Request.Body != nil {
+				bodyBytes, _ := ctx.GetRawData()
+				ctx.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes)) // 关键点
+				logger.WithValue(ctx, zap.String("request_params", string(bodyBytes)))
+			}
 		}
 		logger.WithContext(ctx).Info("Request")
 		ctx.Next()
 	}
 }
-func ResponseLogMiddleware(logger *log.Logger) gin.HandlerFunc {
+func ResponseLogMiddleware(logger *log.Logger, conf *viper.Viper) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: ctx.Writer}
 		ctx.Writer = blw
 		startTime := time.Now()
 		ctx.Next()
 		duration := time.Since(startTime).String()
-		logger.WithContext(ctx).Info("Response", zap.Any("response_body", blw.body.String()), zap.Any("time", duration))
+		if conf.GetString("env") != "prod" {
+			responseBody := blw.body.String()
+			logger.WithValue(ctx, zap.String("response_body", responseBody))
+		}
+		status := ctx.Writer.Status()
+		logger.WithValue(ctx, zap.Int("response_status", status))
+		logger.WithContext(ctx).Info("Response", zap.Any("time", duration))
 	}
 }
 

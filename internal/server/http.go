@@ -33,10 +33,13 @@ func NewHTTPServer(
 		})
 	})
 
+	// 设置静态资源目录
+	s.Static("/static", "./storage/upload")
+
 	s.Use(
 		middleware.CORSMiddleware(),
-		middleware.RequestLogMiddleware(logger),
-		middleware.ResponseLogMiddleware(logger),
+		middleware.RequestLogMiddleware(logger, conf),
+		middleware.ResponseLogMiddleware(logger, conf),
 	)
 
 	router.Register(s.Engine)

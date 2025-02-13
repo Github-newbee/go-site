@@ -41,6 +41,8 @@ func (r *Router) Register(e *gin.Engine) {
 		v1.POST("register", r.handlers.UserHandler.Register)
 
 		r.registerSystemRoutes(v1)
+
+		r.registerFileRoutes(v1)
 	}
 
 }
@@ -57,5 +59,15 @@ func (r *Router) registerSystemRoutes(group *gin.RouterGroup) {
 		system.RegisterCategoryRoutes(systemGroup, r.handlers)
 		// 网站路由
 		system.RegisterWebsiteRoutes(systemGroup, r.handlers)
+	}
+}
+
+// 文件路由
+func (r *Router) registerFileRoutes(group *gin.RouterGroup) {
+	fileGroup := group.Group("/")
+	// 严格认证
+	fileGroup.Use(middleware.StrictAuth(r.jwt, r.logger))
+	{
+		system.RegisterFileRoutes(group, r.handlers)
 	}
 }

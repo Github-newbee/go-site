@@ -26,16 +26,17 @@ type BaseFindRequest struct {
 }
 
 // 这段代码的作用是从 HTTP 请求中绑定参数到结构体，并设置默认值和进行验证。
-func Assign(c *gin.Context, req interface{}) {
+func Assign(c *gin.Context, req interface{}) error {
 	if c.Request.Method == "GET" {
 		if err := c.ShouldBindQuery(req); err != nil {
-			log.Fatalf("ShouldBindQuery: %s", err.Error())
-			panic(err)
+			log.Printf("Validate: %s", err.Error())
+			return err
+
 		}
 	} else {
 		if err := c.ShouldBindBodyWith(req, binding.JSON); err != nil && err.Error() != "EOF" {
-			log.Fatalf("ShouldBindBodyWith: %s", err.Error())
-			panic(err)
+			log.Printf("Validate: %s", err.Error())
+			return err
 		}
 	}
 
@@ -43,9 +44,10 @@ func Assign(c *gin.Context, req interface{}) {
 	setDefaultValues(reflect.ValueOf(req).Elem())
 
 	if err := Validate.Struct(req); err != nil {
-		log.Fatalf("Validate: %s", err.Error())
-		panic(err)
+		log.Printf("Validate: %s", err.Error())
+		return err
 	}
+	return nil
 }
 
 func setDefaultValues(v reflect.Value) {

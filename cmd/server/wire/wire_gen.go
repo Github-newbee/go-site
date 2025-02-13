@@ -36,7 +36,8 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	categoryService := service.NewCategoryService(serviceService, categoryRepository)
 	websiteRepository := repository.NewWebsiteRepository(repositoryRepository)
 	websiteService := service.NewWebsiteService(serviceService, websiteRepository, categoryRepository)
-	handlerHandler := handler.NewHandler(logger, userService, categoryService, websiteService)
+	fileService := service.NewFileService(serviceService)
+	handlerHandler := handler.NewHandler(logger, userService, categoryService, websiteService, fileService)
 	router := server.ProvideRouter(handlerHandler, jwtJWT, logger, viperViper)
 	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, router)
 	jobJob := job.NewJob(transaction, logger, sidSid)
@@ -51,7 +52,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewCategoryRepository, repository.NewWebsiteRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewCategoryService, service.NewWebsiteService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewCategoryService, service.NewWebsiteService, service.NewFileService)
 
 var handlerSet = wire.NewSet(handler.NewHandler)
 
