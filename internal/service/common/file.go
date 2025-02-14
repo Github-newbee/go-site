@@ -1,6 +1,7 @@
-package service
+package common
 
 import (
+	"go-my-demo/internal/service"
 	"os"
 	"path/filepath"
 
@@ -14,7 +15,7 @@ type FileService interface {
 }
 
 func NewFileService(
-	service *Service,
+	service *service.Service,
 ) FileService {
 	return &fileService{
 		Service: service,
@@ -22,7 +23,7 @@ func NewFileService(
 }
 
 type fileService struct {
-	*Service
+	*service.Service
 }
 
 func (s *fileService) UploadFile(ctx *gin.Context) (string, error) {

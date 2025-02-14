@@ -9,6 +9,7 @@ import (
 	"go-my-demo/internal/repository"
 	"go-my-demo/internal/server"
 	"go-my-demo/internal/service"
+	"go-my-demo/internal/service/common"
 	"go-my-demo/pkg/app"
 	"go-my-demo/pkg/jwt"
 	"go-my-demo/pkg/log"
@@ -36,7 +37,7 @@ var serviceSet = wire.NewSet(
 	service.NewUserService,
 	service.NewCategoryService,
 	service.NewWebsiteService,
-	service.NewFileService,
+	common.NewFileService,
 )
 
 var handlerSet = wire.NewSet(

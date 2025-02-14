@@ -12,6 +12,8 @@ import (
 type WebsiteService interface {
 	GetWebsite(ctx context.Context, id string) (*model.Website, error)
 	CreateWebsite(ctx context.Context, website *v1.WebsiteRequest) (*model.Website, error)
+	Get(ctx context.Context, req v1.GetWebsiteRequest) ([]v1.WebsiteResponse, error)
+	Update(ctx context.Context, id string, req *v1.WebsiteRequest) error
 }
 
 func NewWebsiteService(
@@ -58,4 +60,31 @@ func (s *websiteService) CreateWebsite(ctx context.Context, req *v1.WebsiteReque
 func (s *websiteService) GetWebsite(ctx context.Context, id string) (*model.Website, error) {
 	website, err := s.websiteRepository.GetWebsiteById(ctx, id)
 	return website, err
+}
+
+func (s *websiteService) Get(ctx context.Context, req v1.GetWebsiteRequest) ([]v1.WebsiteResponse, error) {
+	results, err := s.websiteRepository.Get(ctx, req)
+	return results, err
+}
+
+func (s *websiteService) Update(ctx context.Context, id string, req *v1.WebsiteRequest) error {
+	website, err := s.websiteRepository.GetWebsiteById(ctx, id)
+	if err != nil {
+		return err
+	}
+	// 使用 copier.CopyWithOption 合并请求参数和查询结果
+	if err := copier.CopyWithOption(website, req, copier.Option{IgnoreEmpty: true, DeepCopy: true}); err != nil {
+		return err
+	}
+
+	// Transaction demo
+	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
+		// Create a user
+		if err = s.websiteRepository.Update(ctx, website); err != nil {
+			return err
+		}
+		// TODO: other repo
+		return nil
+	})
+	return err
 }

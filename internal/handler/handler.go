@@ -2,6 +2,7 @@ package handler
 
 import (
 	"go-my-demo/internal/service"
+	"go-my-demo/internal/service/common"
 	"go-my-demo/pkg/jwt"
 	"go-my-demo/pkg/log"
 
@@ -21,7 +22,7 @@ func NewHandler(
 	userService service.UserService,
 	categoryService service.CategoryService,
 	webSiteService service.WebsiteService,
-	fileService service.FileService,
+	fileService common.FileService,
 ) *Handler {
 	h := &Handler{}
 	// 移除对 Handler 的依赖

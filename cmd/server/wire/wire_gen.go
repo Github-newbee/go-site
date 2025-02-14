@@ -14,6 +14,7 @@ import (
 	"go-my-demo/internal/repository"
 	"go-my-demo/internal/server"
 	"go-my-demo/internal/service"
+	"go-my-demo/internal/service/common"
 	"go-my-demo/pkg/app"
 	"go-my-demo/pkg/jwt"
 	"go-my-demo/pkg/log"
@@ -36,7 +37,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	categoryService := service.NewCategoryService(serviceService, categoryRepository)
 	websiteRepository := repository.NewWebsiteRepository(repositoryRepository)
 	websiteService := service.NewWebsiteService(serviceService, websiteRepository, categoryRepository)
-	fileService := service.NewFileService(serviceService)
+	fileService := common.NewFileService(serviceService)
 	handlerHandler := handler.NewHandler(logger, userService, categoryService, websiteService, fileService)
 	router := server.ProvideRouter(handlerHandler, jwtJWT, logger, viperViper)
 	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, router)
@@ -52,7 +53,7 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewCategoryRepository, repository.NewWebsiteRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewCategoryService, service.NewWebsiteService, service.NewFileService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewCategoryService, service.NewWebsiteService, common.NewFileService)
 
 var handlerSet = wire.NewSet(handler.NewHandler)
 

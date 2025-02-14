@@ -19,6 +19,8 @@
 # 忽略 config 文件夹中的所有文件
 config/*
 
+storage/*
+
 cmd/server/storage/*
 
 # Test files

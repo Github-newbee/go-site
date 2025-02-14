@@ -2,7 +2,7 @@ package handler
 
 import (
 	v1 "go-my-demo/api/v1"
-	"go-my-demo/internal/service"
+	"go-my-demo/internal/service/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,12 +10,12 @@ import (
 
 type FileHandler struct {
 	*Handler
-	fileService service.FileService
+	fileService common.FileService
 }
 
 func NewFileHandler(
 	handler *Handler,
-	fileService service.FileService,
+	fileService common.FileService,
 ) *FileHandler {
 	return &FileHandler{
 		Handler:     handler,

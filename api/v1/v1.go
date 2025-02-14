@@ -55,11 +55,13 @@ func sqlErr(err *mysql.MySQLError) (int, string) {
 	// 根据错误码返回对应的错误码和消息
 	switch err.Number {
 	case 1062:
-		return int(err.Number), fmt.Sprintf("数据已存在: %s", strings.Split(err.Message, "'")[1])
+		return int(err.Number), fmt.Sprintf("数据已存在: %s", err.Message)
 	case 1406:
 		return int(err.Number), fmt.Sprintf("参数过长: %s", strings.Split(err.Message, "'")[1])
+	case 1452:
+		return int(err.Number), fmt.Sprintf("外键约束错误: %s", err.Message)
 	default:
-		return 500, "DB错误"
+		return 500, "DB error"
 	}
 }
 
