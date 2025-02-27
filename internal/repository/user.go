@@ -6,6 +6,7 @@ import (
 	v1 "go-my-demo/api/v1"
 	"go-my-demo/internal/model"
 	"go-my-demo/pkg/db"
+	"go-my-demo/pkg/sid"
 
 	"gorm.io/gorm"
 )
@@ -13,7 +14,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
-	GetByID(ctx context.Context, id string) (*model.User, error)
+	GetByID(ctx context.Context, id sid.SnowflakeID) (*model.User, error)
 	GetByUsername(ctx context.Context, username string) (*model.User, error)
 	GetUserAll(req v1.GetAllUsersRequest, ctx context.Context) ([]model.User, error)
 }
@@ -44,7 +45,7 @@ func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 	return nil
 }
 
-func (r *userRepository) GetByID(ctx context.Context, userId string) (*model.User, error) {
+func (r *userRepository) GetByID(ctx context.Context, userId sid.SnowflakeID) (*model.User, error) {
 	var user model.User
 	if err := r.DB(ctx).Where("id = ?", userId).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -67,7 +68,7 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*m
 }
 
 func (r *userRepository) GetUserAll(req v1.GetAllUsersRequest, ctx context.Context) (results []model.User, err error) {
-	// 执行查询
+	// 执行查询，skip和limit是分页参
 	qs := r.DB(ctx).Model(&model.User{}).Session(&gorm.Session{}).Scopes(db.FilterByQuery(req))
 	if err := qs.Limit(req.Limit).Offset(req.Skip).Find(&results).Error; err != nil {
 		return nil, err

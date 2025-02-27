@@ -6,6 +6,8 @@ import (
 	v1 "go-my-demo/api/v1"
 	"go-my-demo/internal/model"
 	"go-my-demo/internal/repository"
+	"go-my-demo/pkg/sid"
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,8 +16,8 @@ import (
 type UserService interface {
 	Register(ctx context.Context, req *v1.RegisterRequest) error
 	Login(ctx context.Context, req *v1.LoginRequest) (string, error)
-	GetProfile(ctx context.Context, userId string) (*model.User, error)
-	UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
+	GetProfile(ctx context.Context, userId sid.SnowflakeID) (*model.User, error)
+	UpdateProfile(ctx context.Context, userId sid.SnowflakeID, req *v1.UpdateProfileRequest) error
 	GetAllUsers(req v1.GetAllUsersRequest, ctx context.Context) ([]model.User, error)
 }
 
@@ -76,7 +78,7 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	// 将 user.Id 从 uint64 转换为 string
 	// userIdStr := strconv.FormatUint(user.Id, 10)
 	// token有效期为1天
-	token, err := s.jwt.GenToken(user.Id, time.Now().Add(time.Hour*24*1))
+	token, err := s.jwt.GenToken(strconv.FormatInt(int64(user.Id), 10), time.Now().Add(time.Hour*24*1))
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +86,7 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	return token, nil
 }
 
-func (s *userService) GetProfile(ctx context.Context, userId string) (*model.User, error) {
+func (s *userService) GetProfile(ctx context.Context, userId sid.SnowflakeID) (*model.User, error) {
 	user, err := s.userRepo.GetByID(ctx, userId)
 	if err != nil {
 		return nil, err
@@ -93,13 +95,19 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*model.Use
 	return user, nil
 }
 
-func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error {
+func (s *userService) UpdateProfile(ctx context.Context, userId sid.SnowflakeID, req *v1.UpdateProfileRequest) error {
 	user, err := s.userRepo.GetByID(ctx, userId)
+	fmt.Println("user:", userId)
 	if err != nil {
 		return err
 	}
 
-	user.Nickname = req.Nickname
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Nickname = &req.Nickname
+	user.Password = string(hashedPassword)
 
 	if err = s.userRepo.Update(ctx, user); err != nil {
 		return err

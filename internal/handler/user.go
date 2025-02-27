@@ -5,6 +5,7 @@ import (
 	"go-my-demo/internal/service"
 	"go-my-demo/pkg/log"
 	"go-my-demo/pkg/request"
+	"go-my-demo/pkg/sid"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,13 +34,13 @@ func NewUserHandler(handler *Handler, userService service.UserService) *UserHand
 // @Success 200 {object} v1.Response
 // @Router /register [post]
 func (h *UserHandler) Register(ctx *gin.Context) {
-	req := new(v1.RegisterRequest)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+	req := v1.RegisterRequest{}
+	queryErr := request.Assign(ctx, &req)
+	if queryErr != nil {
+		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, queryErr.Error())
 		return
 	}
-
-	if err := h.userService.Register(ctx, req); err != nil {
+	if err := h.userService.Register(ctx, &req); err != nil {
 		h.logger.WithContext(ctx).Error("userService.Register error", zap.Error(err))
 		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
 		return
@@ -87,7 +88,7 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 // @Router /user [get]
 func (h *UserHandler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
-	if userId == "" {
+	if userId == sid.SnowflakeID(0) {
 		v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
 		return
 	}
@@ -137,8 +138,8 @@ func (h *UserHandler) GetProfileByID(ctx *gin.Context) {
 		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
 		return
 	}
-
-	user, err := h.userService.GetProfile(ctx, userId)
+	id, _ := sid.NewSnowflakeIDFromString(userId)
+	user, err := h.userService.GetProfile(ctx, id)
 	if err != nil {
 		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
 		return

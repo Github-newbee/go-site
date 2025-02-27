@@ -5,6 +5,7 @@ import (
 	"go-my-demo/internal/service/common"
 	"go-my-demo/pkg/jwt"
 	"go-my-demo/pkg/log"
+	"go-my-demo/pkg/sid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,10 +35,14 @@ func NewHandler(
 	return h
 }
 
-func GetUserIdFromCtx(ctx *gin.Context) string {
+func GetUserIdFromCtx(ctx *gin.Context) sid.SnowflakeID {
 	v, exists := ctx.Get("claims")
 	if !exists {
-		return ""
+		return sid.SnowflakeID(0)
 	}
-	return v.(*jwt.MyCustomClaims).UserId
+	id, err := sid.NewSnowflakeIDFromString(v.(*jwt.MyCustomClaims).UserId)
+	if err != nil {
+		return sid.SnowflakeID(0)
+	}
+	return id
 }

@@ -28,7 +28,8 @@ type LoginResponse struct {
 
 // min 3 max 20 表示长度限制
 type UpdateProfileRequest struct {
-	Nickname string `json:"nickname" example:"alan" binding:"min=3,max=20"`
+	Nickname string `json:"nickname,omitempty" example:"alan" binding:"max=20"`
+	Password string `json:"password" example:"123456" binding:"min=6,max=20"`
 }
 
 type GetProfileResponse struct {
