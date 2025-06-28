@@ -4,13 +4,13 @@ go 1.22.11
 
 require (
 	github.com/google/wire v0.6.0
+	github.com/jinzhu/copier v0.4.0
 	github.com/spf13/viper v1.19.0
 )
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/jinzhu/copier v0.4.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
@@ -26,8 +26,8 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.24.0 // indirect
-	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/go-playground/validator/v10 v10.24.0
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/hashicorp/hcl v1.0.0 // indirect

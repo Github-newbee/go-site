@@ -8,7 +8,7 @@ import (
 )
 
 type BaseModel struct {
-	Id        sid.SnowflakeID `json:"id" type:"bigint" gorm:"primarykey"`
+	Id        sid.SnowflakeID `json:"id" gorm:"primarykey;autoIncrement:false"`
 	CreatedAt time.Time       `json:"created_at" gorm:"index"`
 	UpdatedAt time.Time       `json:"updated_at"`
 	// 如果模型有DeletedAt字段，将自动获得软删除的功能！

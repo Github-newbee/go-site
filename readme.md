@@ -311,7 +311,7 @@ func (r *userRepository) GetUserAll(req v1.GetAllUsersRequest, ctx context.Conte
 }
 ```
 
-### grom中的部分解释
+### gorm中的部分解释
 
 * `r.DB(ctx)`：获取数据库链接
 * `Model(&model.User{})`: 指定查询的模型为`model.User`

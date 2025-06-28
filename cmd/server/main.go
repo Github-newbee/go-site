@@ -6,8 +6,6 @@ import (
 	"fmt"
 
 	"go-my-demo/cmd/server/wire"
-	"go-my-demo/internal/model"
-	"go-my-demo/internal/repository"
 	"go-my-demo/pkg/config"
 	"go-my-demo/pkg/log"
 
@@ -35,19 +33,15 @@ func main() {
 	flag.Parse()
 	conf := config.NewConfig(*envConf)
 
+	// 配置验证
+	validator := config.NewConfigValidator(conf)
+	if err := validator.Validate(); err != nil {
+		panic(fmt.Sprintf("Configuration validation failed: %v", err))
+	}
+	validator.PrintConfigSummary()
+
 	logger := log.NewLog(conf)
 
-	// Initialize database connection
-	db := repository.NewDB(conf, logger)
-	// Auto migrate models
-	err := db.AutoMigrate(
-		&model.User{},
-		&model.Category{},
-		&model.Website{},
-	)
-	if err != nil {
-		logger.Fatal("Auto migration failed", zap.Error(err))
-	}
 	app, cleanup, err := wire.NewWire(conf, logger)
 
 	defer cleanup()
