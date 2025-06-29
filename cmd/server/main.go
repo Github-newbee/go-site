@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 
-	"go-my-demo/cmd/server/wire"
-	"go-my-demo/pkg/config"
-	"go-my-demo/pkg/log"
+	"go-site/cmd/server/wire"
+	"go-site/pkg/config"
+	"go-site/pkg/log"
 
 	"go.uber.org/zap"
 )

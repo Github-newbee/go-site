@@ -2,7 +2,7 @@ package job
 
 import (
 	"context"
-	"go-my-demo/internal/repository"
+	"go-site/internal/repository"
 	"time"
 )
 

@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"go-my-demo/pkg/server"
+	"go-site/pkg/server"
 	"log"
 	"os"
 	"os/signal"

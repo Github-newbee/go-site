@@ -1,11 +1,11 @@
 package server
 
 import (
-	apiV1 "go-my-demo/api/v1"
-	"go-my-demo/internal/middleware"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
-	"go-my-demo/pkg/server/http"
+	apiV1 "go-site/api/v1"
+	"go-site/internal/middleware"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
+	"go-site/pkg/server/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"

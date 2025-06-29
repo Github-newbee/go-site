@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	v1 "go-my-demo/api/v1"
-	"go-my-demo/internal/model"
-	"go-my-demo/internal/repository"
+	v1 "go-site/api/v1"
+	"go-site/internal/model"
+	"go-site/internal/repository"
 
 	"github.com/jinzhu/copier"
 )

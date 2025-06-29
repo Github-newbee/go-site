@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"go-my-demo/internal/job"
-	"go-my-demo/pkg/log"
+	"go-site/internal/job"
+	"go-site/pkg/log"
 )
 
 type JobServer struct {

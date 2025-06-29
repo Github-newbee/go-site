@@ -1,7 +1,7 @@
 package system
 
 import (
-	"go-my-demo/internal/handler"
+	"go-site/internal/handler"
 
 	"github.com/gin-gonic/gin"
 )

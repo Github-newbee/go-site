@@ -1,6 +1,6 @@
 package v1
 
-import "go-my-demo/pkg/request"
+import "go-site/pkg/request"
 
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required" example:"admin"`

@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
-	v1 "go-my-demo/api/v1"
-	"go-my-demo/internal/model"
-	"go-my-demo/internal/repository"
-	"go-my-demo/pkg/sid"
+	v1 "go-site/api/v1"
+	"go-site/internal/model"
+	"go-site/internal/repository"
+	"go-site/pkg/sid"
 	"strconv"
 	"time"
 

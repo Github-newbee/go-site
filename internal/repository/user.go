@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
-	v1 "go-my-demo/api/v1"
-	"go-my-demo/internal/model"
-	"go-my-demo/pkg/db"
-	"go-my-demo/pkg/sid"
+	v1 "go-site/api/v1"
+	"go-site/internal/model"
+	"go-site/pkg/db"
+	"go-site/pkg/sid"
 
 	"gorm.io/gorm"
 )

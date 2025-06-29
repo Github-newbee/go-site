@@ -4,17 +4,17 @@
 package wire
 
 import (
-	"go-my-demo/internal/handler"
-	"go-my-demo/internal/job"
-	"go-my-demo/internal/repository"
-	"go-my-demo/internal/server"
-	"go-my-demo/internal/service"
-	"go-my-demo/internal/service/common"
-	"go-my-demo/pkg/app"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
-	"go-my-demo/pkg/server/http"
-	"go-my-demo/pkg/sid"
+	"go-site/internal/handler"
+	"go-site/internal/job"
+	"go-site/internal/repository"
+	"go-site/internal/server"
+	"go-site/internal/service"
+	"go-site/internal/service/common"
+	"go-site/pkg/app"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
+	"go-site/pkg/server/http"
+	"go-site/pkg/sid"
 
 	"github.com/google/wire"
 	"github.com/spf13/viper"
@@ -24,12 +24,13 @@ import (
 
 var repositorySet = wire.NewSet(
 	repository.NewDB,
-	//repository.NewRedis,
+	repository.NewRedis,
 	repository.NewRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
 	repository.NewCategoryRepository,
 	repository.NewWebsiteRepository,
+	repository.NewWeatherRepository,
 )
 
 var serviceSet = wire.NewSet(
@@ -37,6 +38,7 @@ var serviceSet = wire.NewSet(
 	service.NewUserService,
 	service.NewCategoryService,
 	service.NewWebsiteService,
+	service.NewWeatherService,
 	common.NewFileService,
 )
 

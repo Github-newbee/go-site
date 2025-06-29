@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	v1 "go-my-demo/api/v1"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
+	v1 "go-site/api/v1"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -1,11 +1,11 @@
 package server
 
 import (
-	"go-my-demo/internal/handler"
-	"go-my-demo/internal/middleware"
-	"go-my-demo/internal/server/system"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
+	"go-site/internal/handler"
+	"go-site/internal/middleware"
+	"go-site/internal/server/system"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -59,6 +59,8 @@ func (r *Router) registerSystemRoutes(group *gin.RouterGroup) {
 		system.RegisterCategoryRoutes(systemGroup, r.handlers)
 		// 网站路由
 		system.RegisterWebsiteRoutes(systemGroup, r.handlers)
+		// 天气路由
+		system.RegisterWeatherRoutes(systemGroup, r.handlers)
 	}
 }
 

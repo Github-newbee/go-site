@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"go-my-demo/internal/model"
-	"go-my-demo/pkg/request"
+	"go-site/internal/model"
+	"go-site/pkg/request"
 )
 
 type WebsiteRequest struct {

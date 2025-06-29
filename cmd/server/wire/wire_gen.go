@@ -9,17 +9,17 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"go-my-demo/internal/handler"
-	"go-my-demo/internal/job"
-	"go-my-demo/internal/repository"
-	"go-my-demo/internal/server"
-	"go-my-demo/internal/service"
-	"go-my-demo/internal/service/common"
-	"go-my-demo/pkg/app"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
-	"go-my-demo/pkg/server/http"
-	"go-my-demo/pkg/sid"
+	"go-site/internal/handler"
+	"go-site/internal/job"
+	"go-site/internal/repository"
+	"go-site/internal/server"
+	"go-site/internal/service"
+	"go-site/internal/service/common"
+	"go-site/pkg/app"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
+	"go-site/pkg/server/http"
+	"go-site/pkg/sid"
 )
 
 // Injectors from wire.go:
@@ -27,10 +27,11 @@ import (
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
 	jwtJWT := jwt.NewJwt(viperViper)
 	db := repository.NewDB(viperViper, logger)
-	repositoryRepository := repository.NewRepository(logger, db)
+	client := repository.NewRedis(viperViper)
+	repositoryRepository := repository.NewRepository(logger, db, client)
 	transaction := repository.NewTransaction(repositoryRepository)
 	sidSid := sid.NewSid()
-	serviceService := service.NewService(transaction, logger, sidSid, jwtJWT)
+	serviceService := service.NewService(transaction, logger, sidSid, jwtJWT, client)
 	userRepository := repository.NewUserRepository(repositoryRepository)
 	userService := service.NewUserService(serviceService, userRepository)
 	categoryRepository := repository.NewCategoryRepository(repositoryRepository)
@@ -38,7 +39,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	websiteRepository := repository.NewWebsiteRepository(repositoryRepository)
 	websiteService := service.NewWebsiteService(serviceService, websiteRepository, categoryRepository)
 	fileService := common.NewFileService(serviceService)
-	handlerHandler := handler.NewHandler(logger, userService, categoryService, websiteService, fileService)
+	weatherRepository := repository.NewWeatherRepository(db, logger)
+	weatherService := service.NewWeatherService(serviceService, weatherRepository)
+	handlerHandler := handler.NewHandler(logger, userService, categoryService, websiteService, fileService, weatherService)
 	router := server.ProvideRouter(handlerHandler, jwtJWT, logger, viperViper)
 	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, router)
 	jobJob := job.NewJob(transaction, logger, sidSid)
@@ -51,9 +54,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewCategoryRepository, repository.NewWebsiteRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRedis, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewCategoryRepository, repository.NewWebsiteRepository, repository.NewWeatherRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewCategoryService, service.NewWebsiteService, common.NewFileService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewCategoryService, service.NewWebsiteService, service.NewWeatherService, common.NewFileService)
 
 var handlerSet = wire.NewSet(handler.NewHandler)
 

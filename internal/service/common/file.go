@@ -1,7 +1,7 @@
 package common
 
 import (
-	"go-my-demo/internal/service"
+	"go-site/internal/service"
 	"os"
 	"path/filepath"
 

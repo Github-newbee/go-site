@@ -1,6 +1,6 @@
 package v1
 
-import "go-my-demo/pkg/request"
+import "go-site/pkg/request"
 
 type CategoryRequest struct {
 	CategoryName string `json:"category_name"  `

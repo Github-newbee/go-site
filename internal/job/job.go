@@ -1,10 +1,10 @@
 package job
 
 import (
-	"go-my-demo/internal/repository"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
-	"go-my-demo/pkg/sid"
+	"go-site/internal/repository"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
+	"go-site/pkg/sid"
 )
 
 type Job struct {

@@ -1,8 +1,8 @@
 package handler
 
 import (
-	v1 "go-my-demo/api/v1"
-	"go-my-demo/internal/service/common"
+	v1 "go-site/api/v1"
+	"go-site/internal/service/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

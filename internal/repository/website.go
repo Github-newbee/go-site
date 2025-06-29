@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	v1 "go-my-demo/api/v1"
-	"go-my-demo/internal/model"
-	"go-my-demo/pkg/db"
+	v1 "go-site/api/v1"
+	"go-site/internal/model"
+	"go-site/pkg/db"
 
 	"gorm.io/gorm"
 )

@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"go-my-demo/internal/service"
-	"go-my-demo/internal/service/common"
-	"go-my-demo/pkg/jwt"
-	"go-my-demo/pkg/log"
-	"go-my-demo/pkg/sid"
+	"go-site/internal/service"
+	"go-site/internal/service/common"
+	"go-site/pkg/jwt"
+	"go-site/pkg/log"
+	"go-site/pkg/sid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +16,7 @@ type Handler struct {
 	CategoryHandler *CategoryHandler
 	WebSiteHandler  *WebsiteHandler
 	FileHandler     *FileHandler
+	WeatherHandler  *WeatherHandler
 }
 
 func NewHandler(
@@ -24,6 +25,7 @@ func NewHandler(
 	categoryService service.CategoryService,
 	webSiteService service.WebsiteService,
 	fileService common.FileService,
+	weatherService service.WeatherService,
 ) *Handler {
 	h := &Handler{}
 	// 移除对 Handler 的依赖
@@ -31,7 +33,7 @@ func NewHandler(
 	h.CategoryHandler = NewCategoryHandler(h, categoryService)
 	h.WebSiteHandler = NewWebsiteHandler(h, webSiteService)
 	h.FileHandler = NewFileHandler(h, fileService)
-
+	h.WeatherHandler = NewWeatherHandler(h, weatherService)
 	return h
 }
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"go-my-demo/pkg/log"
-	"go-my-demo/pkg/zapgorm2"
+	"go-site/pkg/log"
+	"go-site/pkg/zapgorm2"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
@@ -17,19 +17,19 @@ import (
 const ctxTxKey = "TxKey"
 
 type Repository struct {
-	db *gorm.DB
-	//rdb    *redis.Client
+	db     *gorm.DB
+	rdb    *redis.Client
 	logger *log.Logger
 }
 
 func NewRepository(
 	logger *log.Logger,
 	db *gorm.DB,
-	// rdb *redis.Client,
+	rdb *redis.Client,
 ) *Repository {
 	return &Repository{
-		db: db,
-		//rdb:    rdb,
+		db:     db,
+		rdb:    rdb,
 		logger: logger,
 	}
 }

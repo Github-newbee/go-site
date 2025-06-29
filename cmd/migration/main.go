@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go-site/cmd/migration/migrator"
+	"go-site/internal/repository"
+	"go-site/pkg/config"
+	"go-site/pkg/log"
 	"os"
-
-	"go-my-demo/internal/repository"
-	"go-my-demo/pkg/config"
-	"go-my-demo/pkg/log"
 )
 
 func main() {
@@ -31,30 +31,30 @@ func main() {
 	db := repository.NewDB(conf, logger)
 
 	// 创建迁移器
-	migrator := NewMigrator(db, logger)
+	migratorInstance := migrator.NewMigrator(db, logger)
 
 	// 执行迁移操作
 	switch *action {
 	case "up":
-		if err := migrator.Up(); err != nil {
+		if err := migratorInstance.Up(); err != nil {
 			logger.Error(fmt.Sprintf("Migration up failed: %v", err))
 			os.Exit(1)
 		}
 		fmt.Println("✅ Migration completed successfully!")
 	case "down":
-		if err := migrator.Down(); err != nil {
+		if err := migratorInstance.Down(); err != nil {
 			logger.Error(fmt.Sprintf("Migration down failed: %v", err))
 			os.Exit(1)
 		}
 		fmt.Println("✅ Migration rollback completed!")
 	case "reset":
-		if err := migrator.Reset(); err != nil {
+		if err := migratorInstance.Reset(); err != nil {
 			logger.Error(fmt.Sprintf("Migration reset failed: %v", err))
 			os.Exit(1)
 		}
 		fmt.Println("✅ Database reset completed!")
 	case "status":
-		migrator.Status()
+		migratorInstance.Status()
 	default:
 		fmt.Printf("❌ Unknown action: %s\n", *action)
 		showHelp()

@@ -1,4 +1,4 @@
-module go-my-demo
+module go-site
 
 go 1.22.11
 

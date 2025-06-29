@@ -1,7 +1,7 @@
 package model
 
 import (
-	"go-my-demo/pkg/sid"
+	"go-site/pkg/sid"
 	"time"
 
 	"gorm.io/gorm"
